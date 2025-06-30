@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SlothCoin ETH Presale</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+      text-align: center;
+      padding: 60px;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      display: inline-block;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    input, button {
+      margin: 10px;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      width: 240px;
+    }
+    button {
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🦥 SlothCoin ETH Presale</h1>
+    <p>Buy $SLOTH by sending ETH directly to our presale address</p>
+
+    <button onclick="connectWallet()">🔌 Connect MetaMask</button><br>
+    <div id="wallet-address"></div>
+
+    <input type="number" id="ethAmount" placeholder="Enter ETH amount"><br>
+    <button onclick="sendETH()">🚀 Send ETH</button>
+
+    <div id="status"></div>
+  </div>
+
+  <script>
+    const recipientAddress = "0x946e40fc91f22094d3d7ec0867164bbb250d38e7";
+    let provider, signer;
+
+    async function connectWallet() {
+      if (typeof window.ethereum !== 'undefined') {
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        signer = provider.getSigner();
+        const userAddress = await signer.getAddress();
+        document.getElementById("wallet-address").innerText = "Connected: " + userAddress;
+      } else {
+        alert("MetaMask not detected. Please install MetaMask.");
+      }
+    }
+
+    async function sendETH() {
+      const amount = document.getElementById("ethAmount").value;
+      const statusDiv = document.getElementById("status");
+
+      if (!signer) {
+        statusDiv.innerText = "❗ Please connect MetaMask first.";
+        return;
+      }
+
+      try {
+        const tx = await signer.sendTransaction({
+          to: recipientAddress,
+          value: ethers.utils.parseEther(amount)
+        });
+        statusDiv.innerHTML = `✅ ETH Sent!<br>Tx Hash: <a href="https://etherscan.io/tx/${tx.hash}" target="_blank">${tx.hash}</a>`;
+      } catch (err) {
+        statusDiv.innerText = "❌ Error sending ETH: " + err.message;
+      }
+    }
+  </script>
+
+</body>
+</html>
